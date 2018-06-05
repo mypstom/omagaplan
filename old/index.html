@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Test Robot</title>
+	<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+	<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+	<script src="public/socket.io.min.js"></script>
+</head>
+<script>
+  $(function () {
+    var socket = io();
+    $('#up').on("click", function(){
+      socket.emit('attack', "up");
+
+    });
+    $('#down').on("click", function(){
+      socket.emit('attack', "down");
+    });
+    $('#left').on("click", function(){
+      socket.emit('attack', "left");
+    });
+    $('#right').on("click", function(){
+      socket.emit('attack', "right");
+    });
+  });
+</script>
+<style type="text/css">
+	.container{
+		width: 100vw;
+		height: 90vh;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
+	}
+
+	.btn{
+		background-color: cornsilk;
+	    font-size: 50px;
+	    width: 90%;
+	    margin: 10px;
+	    height: 20vh;
+	}
+</style>
+<body>
+	<div class="container">
+		<button class="btn" id="up">UP</button>
+		<button class="btn" id="down">DOWN</button>
+		<button class="btn" id="left">LEFT</button>
+		<button class="btn" id="right">RIGHT</button>
+	</div>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Webduino Blockly Demo 01</title>
+  <script src="https://blocklypro.webduino.io/components/jquery/dist/jquery.min.js"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/webduino-all-0.4.20.min.js"></script>
+  <script src="https://blocklypro.webduino.io/dist/webduino-blockly.min.js"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/firebase.min.js"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/runtime.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+
+</head>
+
+<style>
+    .waterflow-data{
+        color: gray;       
+    }
+
+    .hasWater{
+        color:aqua;
+    }
+
+    .state{
+        color: gray;
+    }
+
+    .connect{
+        color: green;
+    }
+    body{
+        padding: 20px;
+    }
+</style>
+
+
+<body>
+    <h2>雲端監控程式</h2>
+    <div class="waterflow">是否有水流通過：
+        <span class="waterflow-data">
+            無水流
+        </span>
+    </div>
+    <div>連線狀態
+        <span class="state">尚未連線</span>
+    </div>
+    <br>
+    <button  type="button" class="btn btn-primary reload">重新連線</button>
+    
+</body>
+
+<script>
+$(document).ready(function(){
+    $(".reload").on("click", function(){
+        location.reload();
+    });
+
+    (async function () {
+
+        var myFirebase;
+        var conuter;
+        var rgbled;
+        var pin;
+
+        boardReady({board: 'Smart', device: '10dgKBXd', transport: 'mqtt'}, async function (board) {
+            board.samplingInterval = 20;
+            myFirebase = new Firebase('https://ooaccountingsystem.firebaseio.com');
+            conuter = 0;
+            rgbled = getRGBLedCathode(board, 15, 12, 13);
+            pin = getPin(board, 16);
+            pin.setMode(0);
+            rgbled.setColor('#3333ff');
+            setInterval(async function () {
+                
+                let waterflowData = await pin.read();
+
+                myFirebase.set({
+                    waterflow: waterflowData,
+                    openState: 0
+                });
+
+                if(waterflowData==0){
+                    $(".waterflow-data").text("無水流");
+                    $(".waterflow-data").removeClass("hasWater");
+                }else{
+                    $(".waterflow-data").text("水流通過中");
+                    $(".waterflow-data").addClass("hasWater");
+                }
+                
+                
+                
+                conuter = conuter + 1;
+                if (conuter >= 100) {
+                    conuter = 0;
+                }
+                $(".state").text("已連線");
+                $(".state").addClass("connect");
+            }, 1000);
+        });
+
+    }());
+});
+</script>
