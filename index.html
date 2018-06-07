@@ -6,13 +6,42 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>孔夫子O.P.</title>
     <script src="jquery.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
 </head>
 
+<script src="https://www.gstatic.com/firebasejs/5.0.4/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyDxgOeH5kzft0JQ6aSlzzSatdOff9sMmso",
+    authDomain: "ooaccountingsystem.firebaseapp.com",
+    databaseURL: "https://ooaccountingsystem.firebaseio.com",
+    projectId: "ooaccountingsystem",
+    storageBucket: "ooaccountingsystem.appspot.com",
+    messagingSenderId: "339874112428"
+  };
+  firebase.initializeApp(config);
+</script>
 
 <body>
     <div class="welcome" style="display: none">
         <img class="logo" src="img/logo.png" alt="">
+        <div class="card">
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="exampleInputEmail1">帳號</label>
+                    <input type="email" class="form-control" id="account" aria-describedby="emailHelp" placeholder="請輸入你的帳號">
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1">密碼</label>
+                    <input type="password" class="form-control" id="password" placeholder="請輸入你的密碼">
+                </div>
+                <button id="login" class="btn btn-primary">登入</button>
+            </div>
+        </div>
     </div>
     <div class="dash-board" style="display: none">
         <div class="up">
@@ -108,6 +137,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        flex-direction: column;
     }
 
     .dash-board{
@@ -177,14 +207,25 @@
     .logo{
         width: 30%;
         height: auto;
+        max-width: 120px;
+        margin-bottom: 15px;
     }
 
     .stock{
         filter: hue-rotate(160deg);
     }
 
-    .info{
+    .login{
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         
+    }
+
+    .login-card{
+        width: 50%;
     }
 
     .total-day{
@@ -211,10 +252,13 @@ var power = 80;
 
 
 $(document).ready(function(){
-    $(".welcome").fadeIn(1000, ()=>{
-        $(".welcome").fadeOut(3000, ()=>{
+    $(".welcome").fadeIn(1000);
+
+    $("#login").on("click", function(){
+        if($("#account").val()=="OP" && $("#password").val()=="OP"){
+            $(".welcome").hide();
             $(".dash-board").fadeIn(1000);
-        });
+        }
     });
 
     $(".goInfo").on("click", ()=>{
@@ -226,9 +270,7 @@ $(document).ready(function(){
     $(".goDash").on("click", ()=>{
         $(".info").hide();
         $(".dash-board").fadeIn(600);
-    });
-    updateData();
-    
+    });    
     
 });
 
