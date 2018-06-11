@@ -8,13 +8,31 @@
   <script src="https://blocklypro.webduino.io/components/jquery/dist/jquery.min.js"></script>
   <script src="https://blocklypro.webduino.io/dist/lib/webduino-all-0.4.20.min.js"></script>
   <script src="https://blocklypro.webduino.io/dist/webduino-blockly.min.js"></script>
-  <script src="https://blocklypro.webduino.io/dist/lib/firebase.min.js"></script>
+
+  <!-- <script src="https://blocklypro.webduino.io/dist/lib/firebase.min.js"></script>
+   -->
+
   <script src="https://blocklypro.webduino.io/dist/lib/runtime.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
 
 </head>
+
+
+<script src="https://www.gstatic.com/firebasejs/5.0.4/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyDxgOeH5kzft0JQ6aSlzzSatdOff9sMmso",
+    authDomain: "ooaccountingsystem.firebaseapp.com",
+    databaseURL: "https://ooaccountingsystem.firebaseio.com",
+    projectId: "ooaccountingsystem",
+    storageBucket: "ooaccountingsystem.appspot.com",
+    messagingSenderId: "339874112428"
+  };
+  firebase.initializeApp(config);
+</script>
 
 <style>
     .waterflow-data{
@@ -35,6 +53,30 @@
     body{
         padding: 20px;
     }
+
+    .closeState{
+        color: gray;
+    }
+
+    .openState{
+        color: green;
+    }
+
+    .autoOpen{
+        color: green;
+    }
+
+    .autoClose{
+        color: gray;
+    }
+
+    .nostocked{
+        color: green;
+    }
+
+    .stocked{
+        color: red;
+    }
 </style>
 
 
@@ -45,11 +87,28 @@
             無水流
         </span>
     </div>
-    <div>連線狀態
+    <div>連線狀態 : 
         <span class="state">尚未連線</span>
+    </div>
+    <div>開關狀態 : 
+        <span class="closeState">關上</span>
+    </div>
+    <div>堵塞狀態 : 
+        <span class="nostocked">暢通</span>
+    </div>
+    <br>
+    <div>自動模式 : 
+        <span class="autoOpen">開啟</span>
     </div>
     <br>
     <button  type="button" class="btn btn-primary reload">重新連線</button>
+    <br>
+    <br>
+    <button  type="button" class="btn btn-primary automode">自動模式</button>
+    <br>
+    <br>
+    <button  type="button" class="btn btn-primary motorOpen">開關打開</button>
+    <button  type="button" class="btn btn-primary motorClose">開關關上</button>
     
 </body>
 
@@ -65,41 +124,166 @@ $(document).ready(function(){
         var conuter;
         var rgbled;
         var pin;
+        var pin2;
+        var pin3;
+        var pin4;
+        var pin5;
+        var pin6;
+        var autoState = 1;
+        var connectStste;
+        var connectCounter;
+        var connectTemp;
+        var stock;
+
+        var totalWater;
 
         boardReady({board: 'Smart', device: '10dgKBXd', transport: 'mqtt'}, async function (board) {
             board.samplingInterval = 20;
-            myFirebase = new Firebase('https://ooaccountingsystem.firebaseio.com');
+            myFirebase = firebase;
             conuter = 0;
-            rgbled = getRGBLedCathode(board, 15, 12, 13);
+            connectCounter = 0;
+            connectTemp = 0;
+            totalWater = 0;
+
+            //rgbled = getRGBLedCathode(board, 15, 12, 13);
             pin = getPin(board, 16);
             pin.setMode(0);
-            rgbled.setColor('#3333ff');
-            setInterval(async function () {
-                
-                let waterflowData = await pin.read();
+            pin2 = getPin(board, 2);
+            pin2.setMode(1);
+            pin3 = getPin(board, 4);
+            pin3.setMode(1);
+            pin4 = getPin(board, 14);
+            pin4.setMode(0);
+            pin5 = getPin(board, 15);
+            pin5.setMode(0);
+            pin6 = getPin(board, 0);
+            pin6.setMode(0);
+            pin3.write(1);
 
-                myFirebase.set({
-                    waterflow: waterflowData,
-                    openState: 0
-                });
+            $(".automode").on("click", function(){
+                pin3.write(1);
+                autoState = 1;
+                $(".autoOpen").text("開啟");
+                $(".autoOpen").removeClass("autoClose");
+            });
 
-                if(waterflowData==0){
-                    $(".waterflow-data").text("無水流");
-                    $(".waterflow-data").removeClass("hasWater");
-                }else{
-                    $(".waterflow-data").text("水流通過中");
-                    $(".waterflow-data").addClass("hasWater");
-                }
+            $(".motorOpen").on("click", function(){
+                pin2.write(1);
+                pin3.write(0);
+                autoState = 0;
+                $(".autoOpen").text("關閉");
+                $(".autoOpen").addClass("autoClose");
+                $(".closeState").text("打開");
+                $(".closeState").addClass("openState");
+            });
+            $(".motorClose").on("click", function(){
+                pin2.write(0);
+                pin3.write(0);
+                autoState = 0;
+                $(".autoOpen").text("關閉");
+                $(".autoOpen").addClass("autoClose");
+                $(".closeState").text("關上");
+                $(".closeState").removeClass("openState");
+            });
+
+                //rgbled.setColor('#3333ff');
+                setInterval(async function () {
+                    stock = await pin6.read();
+
+                    let waterflowData = await pin.read();
+                    let motorData = await pin4.read();
+
+                    let oldWaterflow = 0;
+
+                    if(waterflowData == 1){
+                        myFirebase.database().ref("/").once('value').then(function(snapshot) {
+                            oldWaterflow = snapshot.val().waterflow;
+                            oldWaterflow+=50;
+
+                            myFirebase.database().ref("/").set({ 
+                                waterflow: oldWaterflow,
+                                openState: motorData,
+                                isAlive: true,
+                                stockState: stock
+                            });
+                        });
+                    }
+                    else{
+                        myFirebase.database().ref("/").once('value').then(function(snapshot) {
+                            oldWaterflow = snapshot.val().waterflow;
+
+                            myFirebase.database().ref("/").set({ 
+                                waterflow: oldWaterflow,
+                                openState: motorData,
+                                isAlive: true,
+                                stockState: stock
+                            });
+                        });
+                    }
+                    
+                    if(waterflowData==0){
+                        $(".waterflow-data").text("無水流");
+                        $(".waterflow-data").removeClass("hasWater");
+                    }else{
+                        $(".waterflow-data").text("水流通過中");
+                        $(".waterflow-data").addClass("hasWater");
+                    }
+
+                    if(autoState == 1){
+                        if(motorData==0){
+                            $(".closeState").text("關上");
+                            $(".closeState").removeClass("openState");
+                        }else{
+                            $(".closeState").text("打開");
+                            $(".closeState").addClass("openState");
+                        }
+                    }
+
+                    if(stock==0){
+                        $(".nostocked").text("暢通");
+                        $(".nostocked").removeClass("stocked");
+                    }else{
+                        $(".nostocked").text("堵塞");
+                        $(".nostocked").addClass("stocked");
+                    }
+                    
+                    let temp = await pin5.read();
+                    connectTemp = connectTemp + temp;
+                    //console.log("Temp:"+temp);
+                    // console.log("OAO:"+connectCounter);
+                    // console.log("connectTemp:"+connectTemp);
+                    if(connectCounter == 2){
+                        // console.log("Temp:"+temp);
+                        // console.log("OAO:"+connectCounter);
+                        //console.log("connectTemp:"+connectTemp);
+                        if(connectTemp>0 && connectTemp<3){
+                            //console.log("im true");
+                            connectStste = 1;
+                            $(".state").text("已連線");
+                            $(".state").addClass("connect");
+                        }
+                        else{
+                            //console.log("im false");
+                            connectStste = 0;
+                            $(".state").text("未連線");
+                            $(".state").removeClass("connect");
+                        }
+                        connectCounter = 0;
+                        connectTemp = 0;
+                    }
+                    else{
+                        connectCounter = connectCounter + 1;
+                    }
                 
-                
-                
-                conuter = conuter + 1;
-                if (conuter >= 100) {
+                    conuter = conuter + 1;
+                    if (conuter >= 100) {
                     conuter = 0;
-                }
-                $(".state").text("已連線");
-                $(".state").addClass("connect");
-            }, 1000);
+                    }
+
+                    $(".state").text("已連線");
+                    $(".state").addClass("connect");
+                }, 1000);
+            
         });
 
     }());
