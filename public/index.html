@@ -280,7 +280,7 @@ $(document).ready(function(){
         let tempData = snapshot.val();
         $(".w").text("排水量：" + tempData.waterflow/1000.0 + " L");
         
-        if(!tempData.stockState){
+        if(stockState==0){
             $(".t").css("color", "green");
             $(".t").text("通暢度：良好");
         }else{
