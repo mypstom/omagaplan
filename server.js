@@ -1,7 +1,8 @@
 var firebase = require("firebase");
 var express = require('express');
 var app = express();
- 
+var path = require('path');
+
 var config = {
     apiKey: "AIzaSyDxgOeH5kzft0JQ6aSlzzSatdOff9sMmso",
     authDomain: "ooaccountingsystem.firebaseapp.com",
@@ -14,7 +15,6 @@ firebase.initializeApp(config);
 var database = firebase.database();
 
 var ref = firebase.database().ref('status/');
-
 
 
 app.use('/public', express.static(path.join(__dirname + '/public')));
