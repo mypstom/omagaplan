@@ -275,7 +275,7 @@ $(document).ready(function(){
         $(".dash-board").fadeIn(600);
     });    
 
-    firebase.database().ref("/").on('value', function(snapshot) {
+    firebase.database().ref("status/").on('value', function(snapshot) {
 
         let tempData = snapshot.val();
         $(".w").text("排水量：" + tempData.waterflow/1000.0 + " L");
