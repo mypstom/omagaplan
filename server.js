@@ -17,7 +17,7 @@ var ref = firebase.database().ref('status/');
 
 
 
-app.use(express.static('public'));
+app.use('/public', express.static(path.join(__dirname + '/public')));
 
 app.get('/', function (req, res) {
    res.send('Hello World');
