@@ -57,7 +57,7 @@
             <div class="state state1">on</div>
             <div class="down">
                 <div class="left">
-                    <img class="hole" src="img/hole.png" alt="">
+                    <img class="hole" id="sun" src="img/hole.png" alt="">
                     <p>陽台排水孔</p>
                 </div>
                 <div class="right-col">
@@ -283,9 +283,11 @@ $(document).ready(function(){
         if(tempData.stockState==0){
             $(".t").css("color", "green");
             $(".t").text("通暢度：良好");
+            $("#sun").removeClass("stock");
         }else{
             $(".t").css("color", "red");
             $(".t").text("通暢度：阻塞");
+            $("#sun").addClass("stock");
         }
         if(tempData.openState==0){
             $(".state1").text("off");
